@@ -1,0 +1,27 @@
+seed: 42
+
+data:
+  root: datasets/dog_emotion_classification
+  splits: [0.8, 0.1, 0.1]
+  batch_size: 32
+  image_size: [224, 224]
+  num_classes: 5
+  class_names: [alert, angry, frown, happy, relax]
+
+model:
+  base_model: MobileNetV2
+  frozen_layers: 100
+  dense_units: 128
+  dropout: 0.3
+
+training:
+  epochs: 50
+  learning_rate: 0.001
+  early_stopping_patience: 5
+  reduce_lr_patience: 3
+  reduce_lr_factor: 0.5
+
+export:
+  format: tflite
+  quantize: false
+  output_dir: models

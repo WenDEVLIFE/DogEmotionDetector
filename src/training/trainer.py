@@ -60,11 +60,12 @@ def train(
     checkpoint_path = output_path / "checkpoint.keras"
     logger.info(f"Model checkpoint will be saved to: {checkpoint_path}")
 
-    # Compile model with Adam optimizer and categorical crossentropy
+    # Compile model with Adam optimizer and sparse categorical crossentropy
+    # (labels are integer indices, not one-hot encoded)
     learning_rate = training_cfg.get("learning_rate", 0.001)
     model.compile(
         optimizer=tf.keras.optimizers.Adam(learning_rate=learning_rate),
-        loss="categorical_crossentropy",
+        loss="sparse_categorical_crossentropy",
         metrics=["accuracy"],
     )
     logger.info(f"Model compiled with Adam optimizer (lr={learning_rate})")

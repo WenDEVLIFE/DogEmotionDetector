@@ -11,14 +11,14 @@ data:
 model:
   base_model: MobileNetV2
   frozen_layers: 100
-  dense_units: 128
-  dropout: 0.3
+  dense_units: 256
+  dropout: 0.4
 
 training:
-  epochs: 50
-  learning_rate: 0.001
-  early_stopping_patience: 5
-  reduce_lr_patience: 3
+  epochs: 150
+  learning_rate: 0.0002
+  early_stopping_patience: 15
+  reduce_lr_patience: 7
   reduce_lr_factor: 0.5
 
 export:

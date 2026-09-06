@@ -2,7 +2,7 @@
 <module type="PYTHON_MODULE" version="4">
   <component name="NewModuleRootManager">
     <content url="file://$MODULE_DIR$" />
-    <orderEntry type="jdk" jdkName="WSL (Ubuntu): (/home/administrator/tensorflow-env/bin/python3) (2)" jdkType="Python SDK" />
+    <orderEntry type="jdk" jdkName="WSL (Ubuntu): (/home/administrator/miniconda3/bin/python)" jdkType="Python SDK" />
     <orderEntry type="sourceFolder" forTests="false" />
   </component>
 </module>

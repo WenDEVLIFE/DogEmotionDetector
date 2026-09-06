@@ -3,5 +3,5 @@
   <component name="Black">
     <option name="sdkName" value="Unknown \\wsl.localhost\Ubuntu\home\administrator\tensorflow-env" />
   </component>
-  <component name="ProjectRootManager" version="2" project-jdk-name="WSL (Ubuntu): (/home/administrator/tensorflow-env/bin/python3) (2)" project-jdk-type="Python SDK" />
+  <component name="ProjectRootManager" version="2" project-jdk-name="WSL (Ubuntu): (/home/administrator/miniconda3/bin/python)" project-jdk-type="Python SDK" />
 </project>

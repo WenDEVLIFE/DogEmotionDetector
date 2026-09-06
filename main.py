@@ -82,12 +82,19 @@ def cmd_train(args: argparse.Namespace) -> None:
                 val_ds.cardinality().numpy(),
                 test_ds.cardinality().numpy())
 
-    # ── 6. Build augmentation ──────────────────────────────────────────
+    # ── 6. Build and apply augmentation ─────────────────────────────────
     from src.data.augmentation import build_augmentation
 
     logger.info("Step 6/11: Building augmentation pipeline")
     augmentation = build_augmentation(config)
     logger.info("Augmentation layers: %s", [l.name for l in augmentation.layers])
+
+    # Apply augmentation ONLY to training data (not val/test)
+    train_ds = train_ds.map(
+        lambda x, y: (augmentation(x, training=True), y),
+        num_parallel_calls=tf.data.AUTOTUNE,
+    )
+    logger.info("Augmentation applied to training dataset")
 
     # ── 7. Build model ─────────────────────────────────────────────────
     from src.model.architecture import build_model

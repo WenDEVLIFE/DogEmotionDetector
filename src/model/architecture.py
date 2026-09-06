@@ -49,8 +49,8 @@ def build_model(config: dict) -> tf.keras.Model:
     for layer in base_model.layers[:frozen_layers]:
         layer.trainable = False
 
-    # Forward pass through base model
-    x = base_model(inputs, training=False)
+    # Forward pass through base model (training=True so BN uses batch stats)
+    x = base_model(inputs, training=True)
 
     # Classifier head
     x = tf.keras.layers.GlobalAveragePooling2D()(x)

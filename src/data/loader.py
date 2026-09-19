@@ -103,8 +103,7 @@ def load_dataset(
                 img = Image.open(path_str).convert("RGB")
                 img = img.resize((w, h), Image.BILINEAR)
                 arr = np.asarray(img, dtype=np.float32)
-                # MobileNetV2 expects [-1, 1] input range
-                arr = (arr / 127.5) - 1.0
+                # Model handles normalization via preprocessing layer
                 return arr
             except Exception as exc:
                 warnings.warn(f"Skipping corrupted image {path_str}: {exc}")

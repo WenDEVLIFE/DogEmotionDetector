@@ -1,70 +1,77 @@
-"""MobileNetV2 transfer learning model for dog emotion classification."""
+"""Transfer learning model for dog emotion classification."""
 
 from __future__ import annotations
 
 import tensorflow as tf
 
+BACKBONES = {
+    "MobileNetV2": tf.keras.applications.MobileNetV2,
+    "EfficientNetV2B0": tf.keras.applications.EfficientNetV2B0,
+}
+
+
+def _preprocess_inputs(inputs: tf.Tensor, backbone_name: str) -> tf.Tensor:
+    """Apply backbone-specific input preprocessing."""
+    if backbone_name == "EfficientNetV2B0":
+        return tf.keras.applications.efficientnet_v2.preprocess_input(inputs)
+    # MobileNetV2 expects [-1, 1]
+    return inputs / 127.5 - 1.0
+
 
 def build_model(config: dict) -> tf.keras.Model:
-    """Build MobileNetV2 transfer learning model.
+    """Build transfer learning model with configurable backbone.
 
     Architecture:
-        MobileNetV2(ImageNet weights, include_top=False)
+        Backbone(ImageNet weights, include_top=False)
         -> GlobalAveragePooling2D
-        -> Dense(128, relu)
-        -> Dropout(0.3)
+        -> Dense(256, relu)
+        -> Dropout
         -> Dense(5, softmax)
-
-    Args:
-        config: Dict with keys: base_model, frozen_layers, dense_units, dropout, num_classes
-
-    Returns:
-        Compiled tf.keras.Model
     """
-    # Extract config values
     model_cfg = config["model"]
     data_cfg = config["data"]
     training_cfg = config["training"]
 
-    base_model_name = model_cfg["base_model"]
+    backbone_name = model_cfg["base_model"]
     frozen_layers = model_cfg["frozen_layers"]
     dense_units = model_cfg["dense_units"]
     dropout = model_cfg["dropout"]
+    weight_decay = model_cfg.get("weight_decay", 0.0)
     num_classes = data_cfg["num_classes"]
     learning_rate = training_cfg["learning_rate"]
     image_size = data_cfg["image_size"]
+    label_smoothing = training_cfg.get("label_smoothing", 0.0)
 
-    # Input layer
     inputs = tf.keras.Input(shape=(image_size[0], image_size[1], 3))
 
-    # Base model: MobileNetV2 with ImageNet weights
-    base_model = tf.keras.applications.MobileNetV2(
+    backbone_cls = BACKBONES[backbone_name]
+    base_model = backbone_cls(
         input_shape=(image_size[0], image_size[1], 3),
         include_top=False,
         weights="imagenet",
     )
 
-    # Freeze the first N layers
     base_model.trainable = True
     for layer in base_model.layers[:frozen_layers]:
         layer.trainable = False
 
-    # Forward pass through base model (training=True so BN uses batch stats)
-    x = base_model(inputs, training=True)
+    x = _preprocess_inputs(inputs, backbone_name)
+    x = base_model(x, training=True)
 
-    # Classifier head
     x = tf.keras.layers.GlobalAveragePooling2D()(x)
-    x = tf.keras.layers.Dense(dense_units, activation="relu")(x)
+    x = tf.keras.layers.Dense(
+        dense_units,
+        activation="relu",
+        kernel_regularizer=tf.keras.regularizers.l2(weight_decay),
+    )(x)
     x = tf.keras.layers.Dropout(dropout)(x)
     outputs = tf.keras.layers.Dense(num_classes, activation="softmax")(x)
 
-    # Build model
     model = tf.keras.Model(inputs=inputs, outputs=outputs)
 
-    # Compile
     model.compile(
         optimizer=tf.keras.optimizers.Adam(learning_rate=learning_rate),
-        loss="categorical_crossentropy",
+        loss=tf.keras.losses.CategoricalCrossentropy(label_smoothing=label_smoothing),
         metrics=["accuracy"],
     )
 

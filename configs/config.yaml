@@ -9,16 +9,18 @@ data:
   class_names: [alert, angry, frown, happy, relax]
 
 model:
-  base_model: MobileNetV2
-  frozen_layers: 100
+  base_model: EfficientNetV2B0
+  frozen_layers: 120
   dense_units: 256
-  dropout: 0.4
+  dropout: 0.5
+  weight_decay: 0.01
 
 training:
   epochs: 150
-  learning_rate: 0.0002
-  early_stopping_patience: 15
-  reduce_lr_patience: 7
+  learning_rate: 0.0003
+  label_smoothing: 0.1
+  early_stopping_patience: 20
+  reduce_lr_patience: 8
   reduce_lr_factor: 0.5
 
 export:
